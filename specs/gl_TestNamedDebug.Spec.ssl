@@ -1,0 +1,26 @@
+#include "Waterchip.h"
+#include "TestNamedDebug.h"
+
+#define DEBUG_NAME "This is the DEBUG_NAME"
+
+describe("TestNamedDebug") begin
+
+    it("can get a message passed to debug()") begin
+        expect(test_debug_message_count_all) with_msg("original debug count") to_equal(0); // TODO - use to_be_empty
+        expect(test_debug_message_count) with_msg("original debug count") to_equal(0); // TODO - use to_be_empty
+        expect(len_array(test_debug_messages_all)) to_equal(0);
+        expect(len_array(test_debug_messages)) to_equal(0);
+
+        debug("a debug message!");
+
+        expect(test_debug_message_count_all) with_msg("new debug count") to_equal(1);
+        expect(test_debug_message_count) with_msg("new debug count") to_equal(1);
+        expect(len_array(test_debug_messages_all)) to_equal(1);
+        expect(len_array(test_debug_messages)) to_equal(1);
+    end
+
+    todo("can get multiple messages passed to debug()");
+    todo("stores messages separately for different DEBUG_NAME");
+    todo("can clear messages passed to debug()");
+
+end
