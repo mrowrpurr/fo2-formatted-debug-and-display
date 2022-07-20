@@ -42,11 +42,27 @@ variable __test_named_debug__use_in_macro_to_support_semicolon;
     end \
     __test_named_debug__use_in_macro_to_support_semicolon = 0
 
-#define test_debug_messages_all (__TestNamedDebug__Messages if __TestNamedDebug__Messages else [])
+// Returns array of messages (for the DEBUG_NAME)
+#define test_debug_messages test_debug_messages_for_debug_name(DEBUG_NAME)
+#define test_debug_messages_for_debug_name(debug_name) (__TestNamedDebug__Messages[debug_name] if __TestNamedDebug__Messages and map_contains_key(__TestNamedDebug__Messages, debug_name) else [])
 
-#define test_debug_messages (__TestNamedDebug__Messages[DEBUG_NAME] if __TestNamedDebug__Messages and map_contains_key(__TestNamedDebug__Messages, DEBUG_NAME) else [])
+// Returns count of messages (for the DEBUG_NAME)
+#define test_debug_message_count test_debug_message_count_for_debug_name(DEBUG_NAME)
+#define test_debug_message_count_for_debug_name(debug_name) (len_array(__TestNamedDebug__Messages[debug_name]) if len_array(__TestNamedDebug__Messages__Export) != -1 and  map_contains_key(__TestNamedDebug__Messages, debug_name) else 0)
 
-#define test_debug_message_count_all (len_array(__TestNamedDebug__Messages__Export) if len_array(__TestNamedDebug__Messages__Export) != -1 else 0)
+// Returns the most recent debug message (or 0)
+#define most_recent_test_debug_message most_recent_test_debug_message_for_debug_name(DEBUG_NAME)
+#define most_recent_test_debug_message_for_debug_name(debug_name) (get_array(__TestNamedDebug__Messages[debug_name], (len_array(__TestNamedDebug__Messages[debug_name]) - 1)) if __TestNamedDebug__Messages and map_contains_key(__TestNamedDebug__Messages, debug_name) else 0)
 
-#define test_debug_message_count (len_array(__TestNamedDebug__Messages[DEBUG_NAME]) if len_array(__TestNamedDebug__Messages__Export) != -1 and  map_contains_key(__TestNamedDebug__Messages, DEBUG_NAME) else 0)
+// Returns debug message at index (or 0)
+#define test_debug_message_at(index) test_debug_message_at_for_debug_name(index, DEBUG_NAME)
+#define test_debug_message_at_for_debug_name(index, debug_name) (get_array(__TestNamedDebug__Messages[debug_name], index) if __TestNamedDebug__Messages and map_contains_key(__TestNamedDebug__Messages, debug_name) and len_array(__TestNamedDebug__Messages[debug_name]) > index else 0)
 
+// Clear debug messages (for the DEBUG_NAME)
+#define clear_test_debug_messages clear_test_debug_messages_for_debug_name(DEBUG_NAME)
+#define clear_test_debug_messages_for_debug_name(debug_name) \
+    begin \
+        if __TestNamedDebug__Messages and map_contains_key(__TestNamedDebug__Messages, debug_name) then \
+            call array_cut(__TestNamedDebug__Messages[debug_name], 0, len_array(__TestNamedDebug__Messages[debug_name])); \
+    end \
+    __test_named_debug__use_in_macro_to_support_semicolon = 0
