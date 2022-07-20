@@ -7,31 +7,44 @@ describe("TestNamedDebug") begin
 
     setup begin
         clear_test_debug_messages;
+        expect(test_debug_message_count) to_be_zero;
+        expect(test_debug_messages)      to_be_empty;
     end
 
     it("can get a message passed to debug()") begin
-        expect(test_debug_message_count) to_be_zero;
-        expect(test_debug_messages)      to_be_empty;
-
         debug("a debug message!");
 
         expect(test_debug_message_count)          to_equal(1);
         expect(len_array(test_debug_messages))    to_equal(1);
         expect(get_array(test_debug_messages, 0)) to_equal("a debug message!");
-        expect(most_recent_debug_message)         to_equal("a debug message!");
+        expect(test_debug_message_at(0))          to_equal("a debug message!");
+        expect(most_recent_test_debug_message)    to_equal("a debug message!");
     end
 
-    xit("can get multiple messages passed to debug()") begin
+    it("can get multiple messages passed to debug()") begin
+        debug("a debug message!");
+        expect(most_recent_test_debug_message)    to_equal("a debug message!");
+        expect(test_debug_message_at(0))          to_equal("a debug message!");
+        expect(test_debug_message_at(1))          to_be_zero;
+        expect(get_array(test_debug_messages, 0)) to_equal("a debug message!");
 
+        debug("another debug message!");
+        expect(most_recent_test_debug_message)    to_equal("another debug message!");
+        expect(test_debug_message_at(0))          to_equal("a debug message!");
+        expect(test_debug_message_at(1))          to_equal("another debug message!");
+        expect(get_array(test_debug_messages, 0)) to_equal("a debug message!");
+        expect(get_array(test_debug_messages, 1)) to_equal("another debug message!");
     end
 
-    todo("can get most recent debug() message");
-    todo("stores messages separately for different DEBUG_NAME");
+    it("can get most recent debug() message") begin
+        debug("a debug message!");
+        expect(most_recent_test_debug_message) to_equal("a debug message!");
+
+        debug("another debug message!");
+        expect(most_recent_test_debug_message) to_equal("another debug message!");
+    end
 
     it("can clear messages passed to debug()") begin
-        expect(test_debug_message_count) to_be_zero;
-        expect(test_debug_messages)      to_be_empty;
-
         debug("a debug message!");
         expect(test_debug_message_count) to_equal(1);
 
@@ -45,7 +58,5 @@ describe("TestNamedDebug") begin
         expect(test_debug_message_count) to_equal(1);
     end
 
-    xit("hmmmm") begin
-    end
-
+    todo("stores messages separately for different DEBUG_NAME");
 end
