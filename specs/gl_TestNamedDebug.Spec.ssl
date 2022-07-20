@@ -5,9 +5,13 @@
 
 describe("TestNamedDebug") begin
 
+    setup begin
+        clear_test_debug_messages;
+    end
+
     it("can get a message passed to debug()") begin
-        expect(test_debug_message_count)       to_be_zero;
-        expect(len_array(test_debug_messages)) to_be_zero;
+        expect(test_debug_message_count) to_be_zero;
+        expect(test_debug_messages)      to_be_empty;
 
         debug("a debug message!");
 
@@ -23,6 +27,25 @@ describe("TestNamedDebug") begin
 
     todo("can get most recent debug() message");
     todo("stores messages separately for different DEBUG_NAME");
-    todo("can clear messages passed to debug()");
+
+    it("can clear messages passed to debug()") begin
+        expect(test_debug_message_count) to_be_zero;
+        expect(test_debug_messages)      to_be_empty;
+
+        debug("a debug message!");
+        expect(test_debug_message_count) to_equal(1);
+
+        debug("another debug message!");
+        expect(test_debug_message_count) to_equal(2);
+
+        clear_test_debug_messages;
+        expect(test_debug_message_count) to_be_zero;
+
+        debug("a debug message!");
+        expect(test_debug_message_count) to_equal(1);
+    end
+
+    xit("hmmmm") begin
+    end
 
 end
