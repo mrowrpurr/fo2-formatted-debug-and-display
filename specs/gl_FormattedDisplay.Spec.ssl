@@ -1,0 +1,83 @@
+#include "Waterchip.h"
+#include "TestNamedDebug.h"
+
+#define DEBUG_NAME "This is the DEBUG_NAME"
+
+describe("TestNamedDebug") begin
+    setup begin
+        clear_test_debug_messages;
+        expect(test_debug_message_count) to_be_zero;
+        expect(test_debug_messages)      to_be_empty;
+    end
+
+    it("can get a message passed to debug()") begin
+        debug("a debug message!");
+
+        expect(test_debug_message_count)          to_equal(1);
+        expect(len_array(test_debug_messages))    to_equal(1);
+        expect(get_array(test_debug_messages, 0)) to_equal("a debug message!");
+        expect(test_debug_message_at(0))          to_equal("a debug message!");
+        expect(most_recent_test_debug_message)    to_equal("a debug message!");
+    end
+
+    it("can get multiple messages passed to debug()") begin
+        debug("a debug message!");
+        expect(most_recent_test_debug_message)    to_equal("a debug message!");
+        expect(test_debug_message_at(0))          to_equal("a debug message!");
+        expect(test_debug_message_at(1))          to_be_zero;
+        expect(get_array(test_debug_messages, 0)) to_equal("a debug message!");
+
+        debug("another debug message!");
+        expect(most_recent_test_debug_message)    to_equal("another debug message!");
+        expect(test_debug_message_at(0))          to_equal("a debug message!");
+        expect(test_debug_message_at(1))          to_equal("another debug message!");
+        expect(get_array(test_debug_messages, 0)) to_equal("a debug message!");
+        expect(get_array(test_debug_messages, 1)) to_equal("another debug message!");
+    end
+
+    it("can get most recent debug() message") begin
+        debug("a debug message!");
+        expect(most_recent_test_debug_message) to_equal("a debug message!");
+
+        debug("another debug message!");
+        expect(most_recent_test_debug_message) to_equal("another debug message!");
+    end
+
+    it("can clear messages passed to debug()") begin
+        debug("a debug message!");
+        expect(test_debug_message_count) to_equal(1);
+
+        debug("another debug message!");
+        expect(test_debug_message_count) to_equal(2);
+
+        clear_test_debug_messages;
+        expect(test_debug_message_count) to_be_zero;
+
+        debug("a debug message!");
+        expect(test_debug_message_count) to_equal(1);
+    end
+
+    it("stores messages separately for different DEBUG_NAME") begin
+        variable diff_debug_name = "DIFF DEBUG NAME";
+
+        debug("Hello");
+        debug_with_debug_name("Hello again",     DEBUG_NAME);
+        debug_with_debug_name("Different Hello", diff_debug_name);
+
+        expect(test_debug_message_count)                                 to_equal(2);
+        expect(test_debug_message_count_for_debug_name(DEBUG_NAME))      to_equal(2);
+        expect(test_debug_message_count_for_debug_name(diff_debug_name)) to_equal(1);
+
+        expect(most_recent_test_debug_message)                                 to_equal("Hello again");
+        expect(most_recent_test_debug_message_for_debug_name(DEBUG_NAME))      to_equal("Hello again");
+        expect(most_recent_test_debug_message_for_debug_name(diff_debug_name)) to_equal("Different Hello");
+
+        clear_test_debug_messages_for_debug_name(DEBUG_NAME);
+        expect(test_debug_message_count)                                 to_be_zero;
+        expect(test_debug_message_count_for_debug_name(DEBUG_NAME))      to_be_zero;
+        expect(test_debug_message_count_for_debug_name(diff_debug_name)) to_equal(1);
+
+        clear_test_debug_messages_for_debug_name(diff_debug_name);
+        expect(test_debug_message_count_for_debug_name(diff_debug_name)) to_be_zero;
+    end
+end
