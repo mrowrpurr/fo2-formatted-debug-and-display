@@ -1,0 +1,9 @@
+#include "Waterchip.h"
+#include "Logger.h"
+#include "TestHelpers/Logger.h"
+
+describe("Logger") begin
+
+    todo("foo");
+
+end
