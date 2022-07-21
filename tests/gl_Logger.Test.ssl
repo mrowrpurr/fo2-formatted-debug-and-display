@@ -1,9 +1,86 @@
 #include "Waterchip.h"
+
 #include "Logger.h"
-#include "TestHelpers/Logger.h"
+
+// Provides helper functions for reading test logs
+// enabled via enable_test_logging;
+#include "TestHelpers/Logging.h"
 
 describe("Logger") begin
+    
+    setup begin
+        logger_reset;
+    end
 
-    todo("foo");
+    // Tests a number of the basics to make sure things are working!
+    test("can log something (to an array for tests)") begin
+        expect(LOGGER_TEST_LOGS)  to_be_zero;
+        expect(test_log_count)    to_be_zero;
+        expect(test_log_messages) to_be_empty;
+
+        initialize_test_logs;
+
+        expect(LOGGER_TEST_LOGS)            not_to_be_zero;
+        expect(len_array(LOGGER_TEST_LOGS)) to_be_zero;
+        expect(test_log_count)              to_be_zero;
+        expect(test_log_messages)           to_be_empty;
+
+        log_debug("This is a message");
+
+        expect(LOGGER_TEST_LOGS)               not_to_be_zero;
+        expect(len_array(LOGGER_TEST_LOGS))    to_equal(1);
+        expect(LOGGER_TEST_LOGS[0])            to_equal("This is a message!");
+        expect(test_log_count)                 to_equal(1);
+        expect(len_array(test_log_messages))   to_equal(1);
+        expect(test_log_messages[0])           to_equal("This is a message!");
+        expect(most_recent_test_log_message)   to_equal("This is a message!");
+        expect(test_log_message_at(0))         to_equal("This is a message!");
+
+        log_debug("Another message");
+
+        // expect(len_array(LOGGER_TEST_LOGS))    to_equal(1);
+        // expect(LOGGER_TEST_LOGS[0])            to_equal("This is a message!");
+        // expect(test_log_count)                 to_equal(1);
+        // expect(len_array(test_log_messages))   to_equal(1);
+        // expect(test_log_messages[0])           to_equal("This is a message!");
+        // expect(most_recent_test_log_message)   to_equal("This is a message!");
+        // expect(test_log_message_at(0))         to_equal("This is a message!");
+
+        // then clear it
+    end
+
+    todo("can call log() with a defined constant log level");
+    todo("can call log() with a string log level");
+    todo("can call set_log_level() with a string log level");
+
+    todo("configuring TRACE shows all levels");
+    todo("configuring DEBUG shows all levels");
+    todo("configuring INFO shows all levels");
+    todo("configuring WARN shows all levels");
+    todo("configuring ERROR shows all levels");
+    todo("configuring FATAL shows all levels");
+
+    todo("by default all log messages are prefixed with log level");
+    todo("can disable all log messages to be prefixed with log level");
+    todo("can configure log level to be added to all logged lines");
+
+    todo("can configure a prefix for all log messages");
+    todo("can configure a suffix for all log messages");
+    todo("can configure prefix and suffix for all log messages");
+
+    todo("can configure prefix to be added to all logged lines");
+    todo("can configure suffix to be added to all logged lines");
+    todo("can configure prefix and suffix to be added to all logged lines");
+
+    todo("can configure log output format including placement of log_level, prefix, and suffix");
+    todo("can configure if test logs store log_level/prefix/suffix or just the original message");
 
 end
+
+// #define LOGGER_LEVEL_TRACE (6)
+// #define LOGGER_LEVEL_DEBUG (5)
+// #define LOGGER_LEVEL_INFO  (4)
+// #define LOGGER_LEVEL_WARN  (3)
+// #define LOGGER_LEVEL_ERROR (2)
+// #define LOGGER_LEVEL_FATAL (1)
+// #define LOGGER_LEVEL_NONE  (0)

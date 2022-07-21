@@ -29,12 +29,25 @@ variable                           LOGGER_DISPLAY_MSG = false;
 #define disable_log_to_display_msg LOGGER_DISPLAY_MSG = false
 
 // By default, do not store output logs in memory for testing log output.
-variable                    LOGGER_TEST = false;
-#define enable_test_logging LOGGER_TEST = true
+variable                     LOGGER_TEST = false;
+#define enable_test_logging  LOGGER_TEST = true
+#define disable_test_logging LOGGER_TEST = false
 
 // When test logging is enabled, this is an array of all log messages.
 // #include "TestHelpers/Logging.h" for macros for working with logs in tests.
 variable LOGGER_TEST_LOGS;
+
+// Reset logger to default configuration values
+#define logger_reset \
+    begin \
+        LOGGER_LOG_LEVEL = LOGGER_LEVEL_TRACE; \
+        LOGGER_DEBUG_MSG = true; \
+        LOGGER_DISPLAY_MSG = false; \
+        LOGGER_TEST = false; \
+        free_array(LOGGER_TEST_LOGS); \
+        LOGGER_TEST_LOGS = 0; \
+    end \
+    if false then debug_msg("this line here to support ; semicolons")
 
 // The log macro!
 #define log(level, text) \
@@ -43,11 +56,19 @@ variable LOGGER_TEST_LOGS;
         if LOGGER_DISPLAY_MSG then display_msg(text); \
         if LOGGER_TEST then begin \
             if not LOGGER_TEST_LOGS then begin \
-                LOGGER_TEST_LOGS = [];
-                fix_array(LOGGER_TEST_LOGS);
+                LOGGER_TEST_LOGS = []; \
+                fix_array(LOGGER_TEST_LOGS); \
             end \
             resize_array(LOGGER_TEST_LOGS, len_array(LOGGER_TEST_LOGS) + 1); \
             LOGGER_TEST_LOGS[len_array(LOGGER_TEST_LOGS) - 1] = text; \
         end \
     end \
     if false then debug_msg("")
+
+// Helpers for logging for different levels
+#define log_trace(text) log(LOGGER_LEVEL_TRACE, text)
+#define log_debug(text) log(LOGGER_LEVEL_DEBUG, text)
+#define log_info(text)  log(LOGGER_LEVEL_INFO, text)
+#define log_warn(text)  log(LOGGER_LEVEL_WARN, text)
+#define log_error(text) log(LOGGER_LEVEL_ERROR, text)
+#define log_fatal(text) log(LOGGER_LEVEL_FATAL, text)

@@ -1,8 +1,0 @@
-/*
-    Example script which uses the Logger
-
-    Used by the Logger tests to verify functionality of scripts using
-    Logger *without* #include "TestHelpers/Logging.h"
-*/
-
-#include "Logger.h"
