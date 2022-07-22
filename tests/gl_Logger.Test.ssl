@@ -10,6 +10,7 @@ describe("Logger") begin
     
     setup begin
         logger_reset;
+        enable_test_logging;
     end
 
     // Tests a number of the basics to make sure things are working!
@@ -29,24 +30,31 @@ describe("Logger") begin
 
         expect(LOGGER_TEST_LOGS)               not_to_be_zero;
         expect(len_array(LOGGER_TEST_LOGS))    to_equal(1);
-        expect(LOGGER_TEST_LOGS[0])            to_equal("This is a message!");
+        expect(LOGGER_TEST_LOGS[0])            to_equal("This is a message");
         expect(test_log_count)                 to_equal(1);
         expect(len_array(test_log_messages))   to_equal(1);
-        expect(test_log_messages[0])           to_equal("This is a message!");
-        expect(most_recent_test_log_message)   to_equal("This is a message!");
-        expect(test_log_message_at(0))         to_equal("This is a message!");
+        expect(test_log_messages[0])           to_equal("This is a message");
+        expect(most_recent_test_log_message)   to_equal("This is a message");
+        expect(test_log_message_at(0))         to_equal("This is a message");
 
         log_debug("Another message");
 
-        // expect(len_array(LOGGER_TEST_LOGS))    to_equal(1);
-        // expect(LOGGER_TEST_LOGS[0])            to_equal("This is a message!");
-        // expect(test_log_count)                 to_equal(1);
-        // expect(len_array(test_log_messages))   to_equal(1);
-        // expect(test_log_messages[0])           to_equal("This is a message!");
-        // expect(most_recent_test_log_message)   to_equal("This is a message!");
-        // expect(test_log_message_at(0))         to_equal("This is a message!");
+        expect(len_array(LOGGER_TEST_LOGS))    to_equal(2);
+        expect(LOGGER_TEST_LOGS[0])            to_equal("This is a message");
+        expect(LOGGER_TEST_LOGS[1])            to_equal("Another message");
+        expect(test_log_count)                 to_equal(2);
+        expect(len_array(test_log_messages))   to_equal(2);
+        expect(test_log_messages[0])           to_equal("This is a message");
+        expect(test_log_messages[1])           to_equal("Another message");
+        expect(most_recent_test_log_message)   to_equal("Another message");
+        expect(test_log_message_at(0))         to_equal("This is a message");
+        expect(test_log_message_at(1))         to_equal("Another message");
 
-        // then clear it
+        clear_test_log_messages;
+
+        expect(len_array(LOGGER_TEST_LOGS))  to_be_zero;
+        expect(test_log_count)               to_be_zero;
+        expect(test_log_messages)            to_be_empty;
     end
 
     todo("can call log() with a defined constant log level");

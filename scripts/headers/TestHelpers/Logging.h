@@ -10,7 +10,7 @@
         LOGGER_TEST_LOGS = []; \
         fix_array(LOGGER_TEST_LOGS); \
     end \
-    if false then debug_msg("this is here to support ; after macro")
+    false
 
 // Returns the array of test log messages written to LOGGER_TEST_LOGS.
 // Returns 0 if no logs have been written.
