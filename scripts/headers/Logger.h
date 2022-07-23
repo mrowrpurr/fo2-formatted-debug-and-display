@@ -49,6 +49,15 @@ variable                              LOGGER_DISPLAY_LOG_LEVEL = true;
 #define enable_test_log_level_output  LOGGER_DISPLAY_LOG_LEVEL = true
 #define disable_test_log_level_output LOGGER_DISPLAY_LOG_LEVEL = false
 
+// Is the log level shown as a prefix? Else as a suffix
+variable LOGGER_DISPLAY_LOG_LEVEL_IS_PREFIX = true;
+#define show_log_level_output_as_prefix LOGGER_DISPLAY_LOG_LEVEL_IS_PREFIX = true
+#define show_log_level_output_as_suffix LOGGER_DISPLAY_LOG_LEVEL_IS_PREFIX = false
+
+// Configure the actual format for the log level output
+variable LOGGER_DISPLAY_LOG_LEVEL_FORMAT = "[%s] ";
+#define set_log_level_output_format(format) LOGGER_DISPLAY_LOG_LEVEL_FORMAT = format
+
 // When test logging is enabled, this is an array of all log messages.
 // #include "TestHelpers/Logging.h" for macros for working with logs in tests.
 variable LOGGER_TEST_LOGS;
@@ -65,28 +74,43 @@ variable LOGGER_TEST_LOGS;
     end \
     false
 
-// The log procedure!
-// Procedure because it uses local variables.
-// Do not call directly.
-// Only invoked if the current log level if >= the level provided to #log
-procedure __log(variable level, variable text)
-    if LOGGER_LOG_LEVEL and level <= LOGGER_LOG_LEVEL then begin
+#define log_level_name(level) \
+    ( \
+        LOGGER_LEVEL_NONE_NAME  if level == LOGGER_LEVEL_NONE else  ( \
+        LOGGER_LEVEL_FATAL_NAME if level == LOGGER_LEVEL_FATAL else ( \
+        LOGGER_LEVEL_ERROR_NAME if level == LOGGER_LEVEL_ERROR else ( \
+        LOGGER_LEVEL_WARN_NAME  if level == LOGGER_LEVEL_WARN else  ( \
+        LOGGER_LEVEL_INFO_NAME  if level == LOGGER_LEVEL_INFO else  ( \
+        LOGGER_LEVEL_DEBUG_NAME if level == LOGGER_LEVEL_DEBUG else ( \
+        LOGGER_LEVEL_TRACE_NAME if level == LOGGER_LEVEL_TRACE else ( \
+        LOGGER_LEVEL_ALL_NAME   if level == LOGGER_LEVEL_ALL else 0)  \
+    )))))))
+
+// log() macro
+// calls the private __log() function *if* the log level is configured to log
+#define log(level, text) if level <= LOGGER_LOG_LEVEL then call __log(level, text)
+
+// private __log() procedure
+// used so that we can change the text as a variable
+procedure __log(variable level, variable text) begin
+     begin
         if LOGGER_DEBUG_MSG then debug_msg(text);
         if LOGGER_DISPLAY_MSG then display_msg(text);
+        if LOGGER_DISPLAY_LOG_LEVEL then
+            if LOGGER_DISPLAY_LOG_LEVEL_IS_PREFIX then
+                text = sprintf(LOGGER_DISPLAY_LOG_LEVEL_FORMAT, log_level_name(level)) + text;
+            else
+                text = text + sprintf(LOGGER_DISPLAY_LOG_LEVEL_FORMAT, log_level_name(level));
         if LOGGER_TEST then begin
             if not LOGGER_TEST_LOGS then begin
                 LOGGER_TEST_LOGS = [];
                 fix_array(LOGGER_TEST_LOGS);
-            end
+            end 
             resize_array(LOGGER_TEST_LOGS, len_array(LOGGER_TEST_LOGS) + 1);
             LOGGER_TEST_LOGS[len_array(LOGGER_TEST_LOGS) - 1] = text;
         end
     end
 end
-
-// The log() macro!
-#define log(level, text) \
-    HERE!!
 
 // Helpers for logging for different levels
 #define log_trace(text) log(LOGGER_LEVEL_TRACE, text)
@@ -95,12 +119,3 @@ end
 #define log_warn(text)  log(LOGGER_LEVEL_WARN, text)
 #define log_error(text) log(LOGGER_LEVEL_ERROR, text)
 #define log_fatal(text) log(LOGGER_LEVEL_FATAL, text)
-
-// #define LOGGER_LEVEL_ALL   (7)
-// #define LOGGER_LEVEL_TRACE (6)
-// #define LOGGER_LEVEL_DEBUG (5)
-// #define LOGGER_LEVEL_INFO  (4)
-// #define LOGGER_LEVEL_WARN  (3)
-// #define LOGGER_LEVEL_ERROR (2)
-// #define LOGGER_LEVEL_FATAL (1)
-// #define LOGGER_LEVEL_NONE  (0)
